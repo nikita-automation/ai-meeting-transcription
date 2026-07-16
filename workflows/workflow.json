@@ -1,0 +1,161 @@
+{
+  "name": "AI Meeting Transcription",
+  "description": "Example n8n-style workflow for transcribing meeting recordings and generating structured meeting notes.",
+  "version": "1.0.0",
+  "nodes": [
+    {
+      "id": "drive-trigger",
+      "name": "New Meeting Recording",
+      "type": "googleDriveTrigger",
+      "position": [
+        120,
+        240
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "folder": "Meeting Recordings"
+      }
+    },
+    {
+      "id": "validate-file",
+      "name": "Validate Audio File",
+      "type": "function",
+      "position": [
+        340,
+        240
+      ],
+      "parameters": {
+        "checks": [
+          "fileExtension",
+          "fileSize",
+          "sourceLink"
+        ],
+        "allowedExtensions": [
+          "mp3",
+          "m4a",
+          "wav",
+          "mp4"
+        ]
+      }
+    },
+    {
+      "id": "download-audio",
+      "name": "Download Recording",
+      "type": "googleDrive",
+      "position": [
+        560,
+        240
+      ],
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{$json.fileId}}"
+      }
+    },
+    {
+      "id": "transcribe",
+      "name": "Transcribe Audio",
+      "type": "openAiAudio",
+      "position": [
+        780,
+        240
+      ],
+      "parameters": {
+        "operation": "transcribe",
+        "model": "whisper-1",
+        "inputBinaryField": "data",
+        "responseFormat": "text"
+      }
+    },
+    {
+      "id": "analyze",
+      "name": "Analyze Meeting Transcript",
+      "type": "openAiChat",
+      "position": [
+        1000,
+        240
+      ],
+      "parameters": {
+        "model": "gpt-4.1-mini",
+        "systemPrompt": "You are an operations assistant. Extract structured meeting notes from transcripts.",
+        "userPrompt": "Create a meeting report with summary, decisions, action items, open questions, risks, and follow-up recommendations. Transcript: {{$json.transcript}}",
+        "outputFormat": "structured_sections"
+      }
+    },
+    {
+      "id": "create-doc",
+      "name": "Create Meeting Report",
+      "type": "googleDocs",
+      "position": [
+        1220,
+        160
+      ],
+      "parameters": {
+        "operation": "create",
+        "title": "Meeting Report - {{$json.fileName}}",
+        "content": "={{$json.meetingReport}}"
+      }
+    },
+    {
+      "id": "tracking-row",
+      "name": "Add Tracking Row",
+      "type": "googleSheets",
+      "position": [
+        1220,
+        320
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheet": "Meeting Transcriptions",
+        "columns": {
+          "Recording": "={{$json.fileName}}",
+          "Status": "Completed",
+          "Transcript": "={{$json.transcriptUrl}}",
+          "Report": "={{$json.reportUrl}}",
+          "Processed At": "={{$now}}"
+        }
+      }
+    },
+    {
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "errorTrigger",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "notify": true,
+        "logDestination": "Google Sheets"
+      }
+    }
+  ],
+  "connections": {
+    "New Meeting Recording": [
+      "Validate Audio File"
+    ],
+    "Validate Audio File": [
+      "Download Recording"
+    ],
+    "Download Recording": [
+      "Transcribe Audio"
+    ],
+    "Transcribe Audio": [
+      "Analyze Meeting Transcript"
+    ],
+    "Analyze Meeting Transcript": [
+      "Create Meeting Report",
+      "Add Tracking Row"
+    ]
+  },
+  "credentials": {
+    "googleDrive": "Configured in automation platform",
+    "googleDocs": "Configured in automation platform",
+    "googleSheets": "Configured in automation platform",
+    "openAi": "Configured in automation platform"
+  },
+  "notes": [
+    "This is a realistic example export for documentation purposes.",
+    "Node types and parameter names may need adjustment for a specific n8n or Make.com environment.",
+    "Secrets and credentials are intentionally not included."
+  ]
+}
