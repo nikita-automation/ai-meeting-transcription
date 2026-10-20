@@ -1,5 +1,7 @@
 # AI Meeting Transcription
 
+> **Kurz auf Deutsch:** Automatisierung, die Meeting-Aufnahmen in Transkript, Zusammenfassung, Entscheidungen und Aufgabenliste verwandelt, mit menschlicher Prüfung vor dem Teilen. Umgesetzt mit n8n oder Make.com, Whisper und OpenAI.
+
 AI Meeting Transcription is an automation project for converting recorded meetings into transcripts, summaries, action items, and structured follow-up records. The system is designed for teams that want to reduce manual note-taking while keeping human review in the process. It uses a workflow automation layer to move audio files through transcription, AI analysis, structured storage, and review.
 
 ## Project Overview
@@ -108,3 +110,7 @@ AI-Meeting-Transcription/
 - Add multilingual transcript handling
 - Add retention policies for sensitive recordings and transcripts
 - Add alerting for failed or incomplete processing runs
+
+---
+
+**Autor:** Nikita Rozumnyi · KI-Automatisierung für Unternehmen · [nikita-automation.de](https://nikita-automation.de) · [LinkedIn](https://www.linkedin.com/in/nikita-rozumniy) · [alle Projekte](https://github.com/nikita-automation)
